@@ -1,0 +1,295 @@
+(python-fs-backend) PS C:\Users\Aditya\Desktop\python-fs-backend> python test_sandbox_manager.py
+
+================================================================================
+SANDBOX MANAGER TEST SUITE
+================================================================================
+
+Make sure E2B_API_KEY is set in environment variables
+2025-11-23 21:41:01,406 - [INFO] - MultiTenantSandboxManager - ================================================================================
+2025-11-23 21:41:01,406 - [INFO] - MultiTenantSandboxManager - MultiTenantSandboxManager initialized
+2025-11-23 21:41:01,406 - [INFO] - MultiTenantSandboxManager - Each user+project gets isolated sandbox
+2025-11-23 21:41:01,406 - [INFO] - MultiTenantSandboxManager - Redis caching enabled for persistence
+2025-11-23 21:41:01,406 - [INFO] - MultiTenantSandboxManager - ================================================================================
+2025-11-23 21:41:02,127 - [INFO] - redis_client.redis_client - ✅ Redis connected: redis://default:a7Q6Ru38XRFMo09ymY6wN4v7ZtZGnBF1@redis-11612.crce182.ap-south-1-1.ec2.redns.redis-cloud.com:11612
+2025-11-23 21:41:02,127 - [INFO] - redis_client.redis_client -    Connection pool: max=10
+2025-11-23 21:41:02,127 - [INFO] - MultiTenantSandboxManager - ✅ Redis caching enabled
+2025-11-23 21:41:02,127 - [INFO] - MultiTenantSandboxManager - Configuration: template=next-fast-mongo-pre-v2, max_per_user=2, max_total=100, redis_enabled=True, api_key=e2b_...15cc
+
+✅ Manager initialized
+   Redis enabled: True
+
+================================================================================
+TEST 1: Basic Sandbox Creation
+================================================================================
+2025-11-23 21:41:02,127 - [INFO] - MultiTenantSandboxManager - [user1/project1] Sandbox request
+2025-11-23 21:41:02,274 - [INFO] - MultiTenantSandboxManager - [user1/project1] Creating NEW sandbox...
+2025-11-23 21:41:02,291 - [INFO] - e2b.api - Request POST https://api.e2b.app/sandboxes
+2025-11-23 21:41:02,291 - [INFO] - e2b.api.client_async - Request: POST https://api.e2b.app/sandboxes
+2025-11-23 21:41:05,098 - [INFO] - e2b.api.client_async - Response: 201 https://api.e2b.app/sandboxes
+2025-11-23 21:41:05,098 - [INFO] - httpx - HTTP Request: POST https://api.e2b.app/sandboxes "HTTP/1.1 201 Created"
+2025-11-23 21:41:05,098 - [INFO] - e2b.api - Response 201
+2025-11-23 21:41:05,233 - [INFO] - MultiTenantSandboxManager - ================================================================================
+2025-11-23 21:41:05,233 - [INFO] - MultiTenantSandboxManager - [user1/project1] ✅ Sandbox created!
+2025-11-23 21:41:05,233 - [INFO] - MultiTenantSandboxManager -    Sandbox ID: imyyb5qhzxnbkfetxyjg5
+2025-11-23 21:41:05,233 - [INFO] - MultiTenantSandboxManager -    Redis TTL: 900s
+2025-11-23 21:41:05,233 - [INFO] - MultiTenantSandboxManager -    Active: 1
+2025-11-23 21:41:05,233 - [INFO] - MultiTenantSandboxManager - ================================================================================
+✅ Created sandbox: imyyb5qhzxnbkfetxyjg5
+2025-11-23 21:41:05,233 - [INFO] - MultiTenantSandboxManager - [user1/project1] Sandbox request
+2025-11-23 21:41:05,233 - [INFO] - MultiTenantSandboxManager - [user1/project1] Memory pool HIT (fresh): imyyb5qhzxnbkfetxyjg5
+✅ Retrieved same sandbox: imyyb5qhzxnbkfetxyjg5
+✅ Test passed: Same sandbox returned from cache
+
+================================================================================
+TEST 2: Multi-Tenant Isolation
+================================================================================
+2025-11-23 21:41:05,233 - [INFO] - MultiTenantSandboxManager - [user1/project1] Sandbox request
+2025-11-23 21:41:05,233 - [INFO] - MultiTenantSandboxManager - [user1/project1] Memory pool HIT (fresh): imyyb5qhzxnbkfetxyjg5
+2025-11-23 21:41:05,233 - [INFO] - MultiTenantSandboxManager - [user1/project2] Sandbox request
+2025-11-23 21:41:05,325 - [INFO] - MultiTenantSandboxManager - [user1/project2] Creating NEW sandbox...
+2025-11-23 21:41:05,325 - [INFO] - e2b.api - Request POST https://api.e2b.app/sandboxes
+2025-11-23 21:41:05,325 - [INFO] - e2b.api.client_async - Request: POST https://api.e2b.app/sandboxes       
+2025-11-23 21:41:07,311 - [INFO] - e2b.api.client_async - Response: 201 https://api.e2b.app/sandboxes
+2025-11-23 21:41:07,316 - [INFO] - httpx - HTTP Request: POST https://api.e2b.app/sandboxes "HTTP/1.1 201 Created"
+2025-11-23 21:41:07,316 - [INFO] - e2b.api - Response 201
+2025-11-23 21:41:07,456 - [INFO] - MultiTenantSandboxManager - ================================================================================
+2025-11-23 21:41:07,456 - [INFO] - MultiTenantSandboxManager - [user1/project2] ✅ Sandbox created!
+2025-11-23 21:41:07,456 - [INFO] - MultiTenantSandboxManager -    Sandbox ID: ix0mj4lamtfivoh49dtyf
+2025-11-23 21:41:07,456 - [INFO] - MultiTenantSandboxManager -    Redis TTL: 900s
+2025-11-23 21:41:07,456 - [INFO] - MultiTenantSandboxManager -    Active: 2
+2025-11-23 21:41:07,456 - [INFO] - MultiTenantSandboxManager - ================================================================================
+2025-11-23 21:41:07,456 - [INFO] - MultiTenantSandboxManager - [user2/project1] Sandbox request
+2025-11-23 21:41:07,549 - [INFO] - MultiTenantSandboxManager - [user2/project1] Creating NEW sandbox...
+2025-11-23 21:41:07,549 - [INFO] - e2b.api - Request POST https://api.e2b.app/sandboxes
+2025-11-23 21:41:07,549 - [INFO] - e2b.api.client_async - Request: POST https://api.e2b.app/sandboxes       
+2025-11-23 21:41:09,476 - [INFO] - e2b.api.client_async - Response: 201 https://api.e2b.app/sandboxes
+2025-11-23 21:41:09,476 - [INFO] - httpx - HTTP Request: POST https://api.e2b.app/sandboxes "HTTP/1.1 201 Created"
+2025-11-23 21:41:09,477 - [INFO] - e2b.api - Response 201
+2025-11-23 21:41:09,877 - [INFO] - MultiTenantSandboxManager - ================================================================================
+2025-11-23 21:41:09,878 - [INFO] - MultiTenantSandboxManager - [user2/project1] ✅ Sandbox created!
+2025-11-23 21:41:09,878 - [INFO] - MultiTenantSandboxManager -    Sandbox ID: izqbkr8iau95vz78ax7av
+2025-11-23 21:41:09,878 - [INFO] - MultiTenantSandboxManager -    Redis TTL: 900s
+2025-11-23 21:41:09,878 - [INFO] - MultiTenantSandboxManager -    Active: 3
+2025-11-23 21:41:09,878 - [INFO] - MultiTenantSandboxManager - ================================================================================
+✅ User1/Project1 sandbox: imyyb5qhzxnbkfetxyjg5
+✅ User1/Project2 sandbox: ix0mj4lamtfivoh49dtyf
+✅ User2/Project1 sandbox: izqbkr8iau95vz78ax7av
+✅ Test passed: All sandboxes are isolated
+
+================================================================================
+TEST 3: Redis Caching
+================================================================================
+2025-11-23 21:41:09,879 - [INFO] - MultiTenantSandboxManager - [user3/project1] Sandbox request
+2025-11-23 21:41:10,042 - [INFO] - MultiTenantSandboxManager - [user3/project1] Creating NEW sandbox...
+2025-11-23 21:41:10,043 - [INFO] - e2b.api - Request POST https://api.e2b.app/sandboxes
+2025-11-23 21:41:10,043 - [INFO] - e2b.api.client_async - Request: POST https://api.e2b.app/sandboxes       
+2025-11-23 21:41:12,443 - [INFO] - e2b.api.client_async - Response: 201 https://api.e2b.app/sandboxes
+2025-11-23 21:41:12,445 - [INFO] - httpx - HTTP Request: POST https://api.e2b.app/sandboxes "HTTP/1.1 201 Created"
+2025-11-23 21:41:12,445 - [INFO] - e2b.api - Response 201
+2025-11-23 21:41:12,564 - [INFO] - MultiTenantSandboxManager - ================================================================================
+2025-11-23 21:41:12,564 - [INFO] - MultiTenantSandboxManager - [user3/project1] ✅ Sandbox created!
+2025-11-23 21:41:12,564 - [INFO] - MultiTenantSandboxManager -    Sandbox ID: i2bcaox9ghv1gibq6zdum
+2025-11-23 21:41:12,564 - [INFO] - MultiTenantSandboxManager -    Redis TTL: 900s
+2025-11-23 21:41:12,564 - [INFO] - MultiTenantSandboxManager -    Active: 4
+2025-11-23 21:41:12,564 - [INFO] - MultiTenantSandboxManager - ================================================================================
+✅ Created sandbox: i2bcaox9ghv1gibq6zdum
+   Redis enabled: True
+   Cache hits: 0
+   Cache misses: 4
+✅ Sandbox ID found in Redis cache: i2bcaox9ghv1gibq6zdum
+✅ Test passed: Redis caching works
+
+================================================================================
+TEST 4: Input Validation
+================================================================================
+✅ Correctly rejected empty user_id: user_id must be a non-empty string
+✅ Correctly rejected empty project_id: project_id must be a non-empty string
+✅ Correctly rejected None user_id: user_id must be a non-empty string
+✅ Test passed: Input validation works
+
+================================================================================
+TEST 5: Resource Limits
+================================================================================
+   Max sandboxes per user: 2
+   Max total sandboxes: 100
+2025-11-23 21:41:12,631 - [INFO] - MultiTenantSandboxManager - [user_limit_test/project0] Sandbox request   
+2025-11-23 21:41:12,897 - [INFO] - MultiTenantSandboxManager - [user_limit_test/project0] Creating NEW sandbox...
+2025-11-23 21:41:12,897 - [INFO] - e2b.api - Request POST https://api.e2b.app/sandboxes
+2025-11-23 21:41:12,897 - [INFO] - e2b.api.client_async - Request: POST https://api.e2b.app/sandboxes       
+2025-11-23 21:41:15,166 - [INFO] - e2b.api.client_async - Response: 201 https://api.e2b.app/sandboxes
+2025-11-23 21:41:15,167 - [INFO] - httpx - HTTP Request: POST https://api.e2b.app/sandboxes "HTTP/1.1 201 Created"
+2025-11-23 21:41:15,167 - [INFO] - e2b.api - Response 201
+2025-11-23 21:41:15,260 - [INFO] - MultiTenantSandboxManager - ================================================================================
+2025-11-23 21:41:15,261 - [INFO] - MultiTenantSandboxManager - [user_limit_test/project0] ✅ Sandbox created!
+2025-11-23 21:41:15,261 - [INFO] - MultiTenantSandboxManager -    Sandbox ID: imiq1pvunlt89cn1rril4
+2025-11-23 21:41:15,261 - [INFO] - MultiTenantSandboxManager -    Redis TTL: 900s
+2025-11-23 21:41:15,261 - [INFO] - MultiTenantSandboxManager -    Active: 5
+2025-11-23 21:41:15,261 - [INFO] - MultiTenantSandboxManager - ================================================================================
+✅ Created sandbox 1/2: imiq1pvunlt89cn1rril4
+2025-11-23 21:41:15,261 - [INFO] - MultiTenantSandboxManager - [user_limit_test/project1] Sandbox request   
+2025-11-23 21:41:15,339 - [INFO] - MultiTenantSandboxManager - [user_limit_test/project1] Creating NEW sandbox...
+2025-11-23 21:41:15,340 - [INFO] - e2b.api - Request POST https://api.e2b.app/sandboxes
+2025-11-23 21:41:15,340 - [INFO] - e2b.api.client_async - Request: POST https://api.e2b.app/sandboxes       
+2025-11-23 21:41:16,051 - [INFO] - e2b.api.client_async - Response: 201 https://api.e2b.app/sandboxes
+2025-11-23 21:41:16,051 - [INFO] - httpx - HTTP Request: POST https://api.e2b.app/sandboxes "HTTP/1.1 201 Created"
+2025-11-23 21:41:16,051 - [INFO] - e2b.api - Response 201
+2025-11-23 21:41:16,128 - [INFO] - MultiTenantSandboxManager - ================================================================================
+2025-11-23 21:41:16,128 - [INFO] - MultiTenantSandboxManager - [user_limit_test/project1] ✅ Sandbox created!
+2025-11-23 21:41:16,129 - [INFO] - MultiTenantSandboxManager -    Sandbox ID: i0675z1y513nhzqyl8lgf
+2025-11-23 21:41:16,129 - [INFO] - MultiTenantSandboxManager -    Redis TTL: 900s
+2025-11-23 21:41:16,129 - [INFO] - MultiTenantSandboxManager -    Active: 6
+2025-11-23 21:41:16,129 - [INFO] - MultiTenantSandboxManager - ================================================================================
+✅ Created sandbox 2/2: i0675z1y513nhzqyl8lgf
+2025-11-23 21:41:16,129 - [INFO] - MultiTenantSandboxManager - [user_limit_test/project_excess] Sandbox request
+✅ Correctly rejected excess sandbox: User user_limit_test reached max sandboxes (2)
+2025-11-23 21:41:16,306 - [INFO] - e2b.api - Request DELETE https://api.e2b.app/sandboxes/imiq1pvunlt89cn1rril4
+2025-11-23 21:41:16,306 - [INFO] - e2b.api.client_async - Request: DELETE https://api.e2b.app/sandboxes/imiq1pvunlt89cn1rril4
+2025-11-23 21:41:16,740 - [INFO] - e2b.api.client_async - Response: 204 https://api.e2b.app/sandboxes/imiq1pvunlt89cn1rril4
+2025-11-23 21:41:16,740 - [INFO] - httpx - HTTP Request: DELETE https://api.e2b.app/sandboxes/imiq1pvunlt89cn1rril4 "HTTP/1.1 204 No Content"
+2025-11-23 21:41:16,740 - [INFO] - e2b.api - Response 204
+2025-11-23 21:41:16,741 - [INFO] - MultiTenantSandboxManager - [user_limit_test/project0] Closed: imiq1pvunlt89cn1rril4
+2025-11-23 21:41:17,220 - [INFO] - e2b.api - Request DELETE https://api.e2b.app/sandboxes/i0675z1y513nhzqyl8lgf
+2025-11-23 21:41:17,220 - [INFO] - e2b.api.client_async - Request: DELETE https://api.e2b.app/sandboxes/i0675z1y513nhzqyl8lgf
+2025-11-23 21:41:17,635 - [INFO] - e2b.api.client_async - Response: 204 https://api.e2b.app/sandboxes/i0675z1y513nhzqyl8lgf
+2025-11-23 21:41:17,635 - [INFO] - httpx - HTTP Request: DELETE https://api.e2b.app/sandboxes/i0675z1y513nhzqyl8lgf "HTTP/1.1 204 No Content"
+2025-11-23 21:41:17,635 - [INFO] - e2b.api - Response 204
+2025-11-23 21:41:17,635 - [INFO] - MultiTenantSandboxManager - [user_limit_test/project1] Closed: i0675z1y513nhzqyl8lgf
+✅ Test passed: Resource limits enforced
+
+================================================================================
+TEST 6: Statistics Tracking
+================================================================================
+   Initial stats:
+     Total created: 6
+     Total requests: 9
+2025-11-23 21:41:18,004 - [INFO] - MultiTenantSandboxManager - [stats_user/stats_project] Sandbox request   
+2025-11-23 21:41:18,234 - [INFO] - MultiTenantSandboxManager - [stats_user/stats_project] Creating NEW sandbox...
+2025-11-23 21:41:18,235 - [INFO] - e2b.api - Request POST https://api.e2b.app/sandboxes
+2025-11-23 21:41:18,235 - [INFO] - e2b.api.client_async - Request: POST https://api.e2b.app/sandboxes       
+2025-11-23 21:41:20,394 - [INFO] - e2b.api.client_async - Response: 201 https://api.e2b.app/sandboxes
+2025-11-23 21:41:20,394 - [INFO] - httpx - HTTP Request: POST https://api.e2b.app/sandboxes "HTTP/1.1 201 Created"
+2025-11-23 21:41:20,395 - [INFO] - e2b.api - Response 201
+2025-11-23 21:41:20,628 - [INFO] - MultiTenantSandboxManager - ================================================================================
+2025-11-23 21:41:20,628 - [INFO] - MultiTenantSandboxManager - [stats_user/stats_project] ✅ Sandbox created!
+2025-11-23 21:41:20,628 - [INFO] - MultiTenantSandboxManager -    Sandbox ID: ijfc6xn6wfdb3qvg2rbn3
+2025-11-23 21:41:20,628 - [INFO] - MultiTenantSandboxManager -    Redis TTL: 900s
+2025-11-23 21:41:20,628 - [INFO] - MultiTenantSandboxManager -    Active: 5
+2025-11-23 21:41:20,628 - [INFO] - MultiTenantSandboxManager - ================================================================================
+   Updated stats:
+     Total created: 7
+     Total requests: 10
+     Active sandboxes: 5
+     Redis enabled: True
+     Cache hit rate: 11.1%
+✅ Test passed: Statistics tracking works
+
+================================================================================
+TEST 7: Health Check
+================================================================================
+2025-11-23 21:41:20,629 - [INFO] - MultiTenantSandboxManager - [health_user/health_project] Sandbox request 
+2025-11-23 21:41:20,739 - [INFO] - MultiTenantSandboxManager - [health_user/health_project] Creating NEW sandbox...
+2025-11-23 21:41:20,739 - [INFO] - e2b.api - Request POST https://api.e2b.app/sandboxes
+2025-11-23 21:41:20,740 - [INFO] - e2b.api.client_async - Request: POST https://api.e2b.app/sandboxes       
+2025-11-23 21:41:21,336 - [INFO] - e2b.api.client_async - Response: 201 https://api.e2b.app/sandboxes
+2025-11-23 21:41:21,336 - [INFO] - httpx - HTTP Request: POST https://api.e2b.app/sandboxes "HTTP/1.1 201 Created"
+2025-11-23 21:41:21,336 - [INFO] - e2b.api - Response 201
+2025-11-23 21:41:21,476 - [INFO] - MultiTenantSandboxManager - ================================================================================
+2025-11-23 21:41:21,476 - [INFO] - MultiTenantSandboxManager - [health_user/health_project] ✅ Sandbox created!
+2025-11-23 21:41:21,476 - [INFO] - MultiTenantSandboxManager -    Sandbox ID: ixl6y28dmj1644m08pfl4
+2025-11-23 21:41:21,476 - [INFO] - MultiTenantSandboxManager -    Redis TTL: 900s
+2025-11-23 21:41:21,476 - [INFO] - MultiTenantSandboxManager -    Active: 6
+2025-11-23 21:41:21,476 - [INFO] - MultiTenantSandboxManager - ================================================================================
+✅ Created sandbox: ixl6y28dmj1644m08pfl4
+✅ Health check passed for active sandbox
+✅ Test passed: Health check works
+
+================================================================================
+TEST 8: Close Sandbox
+================================================================================
+2025-11-23 21:41:22,178 - [INFO] - MultiTenantSandboxManager - [close_user/close_project] Sandbox request   
+2025-11-23 21:41:22,337 - [INFO] - MultiTenantSandboxManager - [close_user/close_project] Creating NEW sandbox...
+2025-11-23 21:41:22,337 - [INFO] - e2b.api - Request POST https://api.e2b.app/sandboxes
+2025-11-23 21:41:22,338 - [INFO] - e2b.api.client_async - Request: POST https://api.e2b.app/sandboxes       
+2025-11-23 21:41:24,261 - [INFO] - e2b.api.client_async - Response: 201 https://api.e2b.app/sandboxes
+2025-11-23 21:41:24,261 - [INFO] - httpx - HTTP Request: POST https://api.e2b.app/sandboxes "HTTP/1.1 201 Created"
+2025-11-23 21:41:24,263 - [INFO] - e2b.api - Response 201
+2025-11-23 21:41:24,422 - [INFO] - MultiTenantSandboxManager - ================================================================================
+2025-11-23 21:41:24,423 - [INFO] - MultiTenantSandboxManager - [close_user/close_project] ✅ Sandbox created!
+2025-11-23 21:41:24,423 - [INFO] - MultiTenantSandboxManager -    Sandbox ID: if2397sztowyvjsvib12r
+2025-11-23 21:41:24,423 - [INFO] - MultiTenantSandboxManager -    Redis TTL: 900s
+2025-11-23 21:41:24,423 - [INFO] - MultiTenantSandboxManager -    Active: 7
+2025-11-23 21:41:24,423 - [INFO] - MultiTenantSandboxManager - ================================================================================
+✅ Created sandbox: if2397sztowyvjsvib12r
+2025-11-23 21:41:24,424 - [INFO] - e2b.api - Request DELETE https://api.e2b.app/sandboxes/if2397sztowyvjsvib12r
+2025-11-23 21:41:24,424 - [INFO] - e2b.api.client_async - Request: DELETE https://api.e2b.app/sandboxes/if2397sztowyvjsvib12r
+2025-11-23 21:41:24,850 - [INFO] - e2b.api.client_async - Response: 204 https://api.e2b.app/sandboxes/if2397sztowyvjsvib12r
+2025-11-23 21:41:24,851 - [INFO] - httpx - HTTP Request: DELETE https://api.e2b.app/sandboxes/if2397sztowyvjsvib12r "HTTP/1.1 204 No Content"
+2025-11-23 21:41:24,851 - [INFO] - e2b.api - Response 204
+2025-11-23 21:41:24,851 - [INFO] - MultiTenantSandboxManager - [close_user/close_project] Closed: if2397sztowyvjsvib12r
+✅ Closed sandbox
+   Active sandboxes: 6
+✅ Test passed: Sandbox closed successfully
+
+================================================================================
+FINAL STATISTICS
+================================================================================
+   total_sandboxes_created: 9
+   total_requests: 12
+   active_sandboxes: 6
+   cleaned_up_sandboxes: 3
+   rejected_requests: 1
+   redis_cache_hits: 1
+   redis_cache_misses: 10
+   redis_enabled: True
+   cache_hit_rate: 0.09090909090909091
+
+================================================================================
+✅ ALL TESTS PASSED
+================================================================================
+
+Cleaning up...
+2025-11-23 21:41:25,221 - [INFO] - MultiTenantSandboxManager - Shutting down...
+2025-11-23 21:41:25,221 - [INFO] - e2b.api - Request DELETE https://api.e2b.app/sandboxes/imyyb5qhzxnbkfetxyjg5
+2025-11-23 21:41:25,221 - [INFO] - e2b.api.client_async - Request: DELETE https://api.e2b.app/sandboxes/imyyb5qhzxnbkfetxyjg5
+2025-11-23 21:41:25,781 - [INFO] - e2b.api.client_async - Response: 204 https://api.e2b.app/sandboxes/imyyb5qhzxnbkfetxyjg5
+2025-11-23 21:41:25,781 - [INFO] - httpx - HTTP Request: DELETE https://api.e2b.app/sandboxes/imyyb5qhzxnbkfetxyjg5 "HTTP/1.1 204 No Content"
+2025-11-23 21:41:25,782 - [INFO] - e2b.api - Response 204
+2025-11-23 21:41:25,782 - [INFO] - MultiTenantSandboxManager - [user1/project1] Closed: imyyb5qhzxnbkfetxyjg5
+2025-11-23 21:41:25,859 - [INFO] - e2b.api - Request DELETE https://api.e2b.app/sandboxes/ix0mj4lamtfivoh49dtyf
+2025-11-23 21:41:25,859 - [INFO] - e2b.api.client_async - Request: DELETE https://api.e2b.app/sandboxes/ix0mj4lamtfivoh49dtyf
+2025-11-23 21:41:26,400 - [INFO] - e2b.api.client_async - Response: 204 https://api.e2b.app/sandboxes/ix0mj4lamtfivoh49dtyf
+2025-11-23 21:41:26,400 - [INFO] - httpx - HTTP Request: DELETE https://api.e2b.app/sandboxes/ix0mj4lamtfivoh49dtyf "HTTP/1.1 204 No Content"
+2025-11-23 21:41:26,401 - [INFO] - e2b.api - Response 204
+2025-11-23 21:41:26,401 - [INFO] - MultiTenantSandboxManager - [user1/project2] Closed: ix0mj4lamtfivoh49dtyf
+2025-11-23 21:41:26,551 - [INFO] - e2b.api - Request DELETE https://api.e2b.app/sandboxes/izqbkr8iau95vz78ax7av
+2025-11-23 21:41:26,551 - [INFO] - e2b.api.client_async - Request: DELETE https://api.e2b.app/sandboxes/izqbkr8iau95vz78ax7av
+2025-11-23 21:41:26,981 - [INFO] - e2b.api.client_async - Response: 204 https://api.e2b.app/sandboxes/izqbkr8iau95vz78ax7av
+2025-11-23 21:41:26,981 - [INFO] - httpx - HTTP Request: DELETE https://api.e2b.app/sandboxes/izqbkr8iau95vz78ax7av "HTTP/1.1 204 No Content"
+2025-11-23 21:41:26,981 - [INFO] - e2b.api - Response 204
+2025-11-23 21:41:26,982 - [INFO] - MultiTenantSandboxManager - [user2/project1] Closed: izqbkr8iau95vz78ax7av
+2025-11-23 21:41:27,084 - [INFO] - e2b.api - Request DELETE https://api.e2b.app/sandboxes/i2bcaox9ghv1gibq6zdum
+2025-11-23 21:41:27,085 - [INFO] - e2b.api.client_async - Request: DELETE https://api.e2b.app/sandboxes/i2bcaox9ghv1gibq6zdum
+2025-11-23 21:41:27,618 - [INFO] - e2b.api.client_async - Response: 204 https://api.e2b.app/sandboxes/i2bcaox9ghv1gibq6zdum
+2025-11-23 21:41:27,619 - [INFO] - httpx - HTTP Request: DELETE https://api.e2b.app/sandboxes/i2bcaox9ghv1gibq6zdum "HTTP/1.1 204 No Content"
+2025-11-23 21:41:27,619 - [INFO] - e2b.api - Response 204
+2025-11-23 21:41:27,620 - [INFO] - MultiTenantSandboxManager - [user3/project1] Closed: i2bcaox9ghv1gibq6zdum
+2025-11-23 21:41:27,761 - [INFO] - e2b.api - Request DELETE https://api.e2b.app/sandboxes/ijfc6xn6wfdb3qvg2rbn3
+2025-11-23 21:41:27,761 - [INFO] - e2b.api.client_async - Request: DELETE https://api.e2b.app/sandboxes/ijfc6xn6wfdb3qvg2rbn3
+2025-11-23 21:41:28,267 - [INFO] - e2b.api.client_async - Response: 204 https://api.e2b.app/sandboxes/ijfc6xn6wfdb3qvg2rbn3
+2025-11-23 21:41:28,267 - [INFO] - httpx - HTTP Request: DELETE https://api.e2b.app/sandboxes/ijfc6xn6wfdb3qvg2rbn3 "HTTP/1.1 204 No Content"
+2025-11-23 21:41:28,267 - [INFO] - e2b.api - Response 204
+2025-11-23 21:41:28,268 - [INFO] - MultiTenantSandboxManager - [stats_user/stats_project] Closed: ijfc6xn6wfdb3qvg2rbn3
+2025-11-23 21:41:28,438 - [INFO] - e2b.api - Request DELETE https://api.e2b.app/sandboxes/ixl6y28dmj1644m08pfl4
+2025-11-23 21:41:28,438 - [INFO] - e2b.api.client_async - Request: DELETE https://api.e2b.app/sandboxes/ixl6y28dmj1644m08pfl4
+2025-11-23 21:41:28,927 - [INFO] - e2b.api.client_async - Response: 204 https://api.e2b.app/sandboxes/ixl6y28dmj1644m08pfl4
+2025-11-23 21:41:28,928 - [INFO] - httpx - HTTP Request: DELETE https://api.e2b.app/sandboxes/ixl6y28dmj1644m08pfl4 "HTTP/1.1 204 No Content"
+2025-11-23 21:41:28,928 - [INFO] - e2b.api - Response 204
+2025-11-23 21:41:28,928 - [INFO] - MultiTenantSandboxManager - [health_user/health_project] Closed: ixl6y28dmj1644m08pfl4
+2025-11-23 21:41:29,188 - [INFO] - redis_client.redis_client - Redis connection pool closed
+2025-11-23 21:41:29,188 - [INFO] - MultiTenantSandboxManager - ================================================================================
+2025-11-23 21:41:29,188 - [INFO] - MultiTenantSandboxManager - FINAL STATS:
+2025-11-23 21:41:29,188 - [INFO] - MultiTenantSandboxManager -   Total created: 9
+2025-11-23 21:41:29,188 - [INFO] - MultiTenantSandboxManager -   Redis cache hits: 1
+2025-11-23 21:41:29,189 - [INFO] - MultiTenantSandboxManager -   Cache hit rate: 9.1%
+2025-11-23 21:41:29,189 - [INFO] - MultiTenantSandboxManager - ================================================================================
+✅ Cleanup complete
