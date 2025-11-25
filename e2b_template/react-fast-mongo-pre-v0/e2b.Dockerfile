@@ -993,8 +993,7 @@ EOF
 
 # src/App.js
 RUN cat > src/App.js << 'EOF'
-import { useEffect } from "react";
-import "@/App.css";
+import { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import axios from "axios";
 
@@ -1002,25 +1001,181 @@ const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
 const Home = () => {
-  const helloWorldApi = async () => {
-    try {
-      const response = await axios.get(`${API}/`);
-      console.log(response.data.message);
-    } catch (e) {
-      console.error(e, `errored out requesting / api`);
-    }
-  };
+  const [message, setMessage] = useState("Connecting...");
+  const [error, setError] = useState("");
+  const [apiUrl, setApiUrl] = useState("");
+  const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
+    setApiUrl(BACKEND_URL || "No backend URL configured");
+
+    if (!BACKEND_URL) {
+      setMessage("No backend URL configured");
+      setError("REACT_APP_BACKEND_URL environment variable not set");
+      setIsConnected(false);
+      return;
+    }
+
+    const helloWorldApi = async () => {
+      try {
+        const response = await axios.get(`${API}/`, {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        setMessage(response.data.message || "Backend responded");
+        setError("");
+        setIsConnected(true);
+      } catch (e) {
+        console.error("Failed to fetch from API:", e);
+        setMessage("Connection failed");
+        setError(e instanceof Error ? e.message : "Unknown error");
+        setIsConnected(false);
+      }
+    };
+
     helloWorldApi();
   }, []);
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <h1>Welcome to Your App</h1>
-        <p>Full-stack code generation platform</p>
-      </header>
+    <div
+      className="min-h-screen w-screen flex flex-col relative overflow-y-auto"
+      style={{ backgroundColor: "#000000" }}
+    >
+      <style>{`
+        body { margin: 0; padding: 0; }
+        .gradient-bg {
+          background: radial-gradient(ellipse 800px 600px at 100% -50%, rgba(34, 211, 238, 0.4) 0%, transparent 70%),
+                      radial-gradient(ellipse 600px 500px at -10% 100%, rgba(34, 211, 238, 0.2) 0%, transparent 70%);
+        }
+      `}</style>
+      <div className="absolute inset-0 gradient-bg"></div>
+
+      <div className="relative z-10 flex flex-col min-h-screen">
+        <div className="flex-1 flex items-center justify-center px-4 md:px-8 lg:px-16 py-8 md:py-12">
+          <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 items-center">
+            <div className="space-y-6 md:space-y-8">
+              <div>
+                <h1
+                  className="text-4xl md:text-6xl lg:text-7xl font-light tracking-wide mb-3 md:mb-4"
+                  style={{ fontFamily: "Georgia, serif", color: "#FFFFFF" }}
+                >
+                  Code
+                  <br />
+                  Generation
+                </h1>
+                <p className="text-xs md:text-sm tracking-widest uppercase" style={{ color: "#22D3EE" }}>
+                  Full-Stack Platform
+                </p>
+              </div>
+
+              <p className="text-base md:text-lg leading-relaxed max-w-md" style={{ color: "#CBD5E1" }}>
+                Transform your ideas into fully functional applications. Intelligent code generation for backend and
+                frontend.
+              </p>
+
+              <div className="flex gap-3">
+                <div
+                  className="w-1 h-12 rounded-full"
+                  style={{
+                    background: "linear-gradient(180deg, #22D3EE 0%, #14B8A6 100%)",
+                  }}
+                ></div>
+                <div
+                  className="w-1 h-12 rounded-full"
+                  style={{
+                    background: "linear-gradient(180deg, rgba(34, 211, 238, 0.6) 0%, rgba(20, 184, 166, 0.4) 100%)",
+                  }}
+                ></div>
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              <div
+                className="backdrop-blur border rounded-lg p-6 md:p-8 space-y-4 md:space-y-6"
+                style={{
+                  backgroundColor: "rgba(0, 0, 0, 0.4)",
+                  borderColor: "rgba(34, 211, 238, 0.2)",
+                }}
+              >
+                <div>
+                  <p
+                    className="text-xs uppercase tracking-widest mb-2 md:mb-3"
+                    style={{ color: "rgba(34, 211, 238, 0.7)" }}
+                  >
+                    Connection Status
+                  </p>
+                  <div className="flex items-center gap-3">
+                    <div
+                      className="w-3 h-3 rounded-full animate-pulse"
+                      style={{
+                        backgroundColor: isConnected ? "#10B981" : "#EF4444",
+                      }}
+                    ></div>
+                    <span className="text-sm font-medium" style={{ color: isConnected ? "#10B981" : "#EF4444" }}>
+                      {isConnected ? "Connected" : "Disconnected"}
+                    </span>
+                  </div>
+                </div>
+
+                <div style={{ borderTop: "1px solid rgba(34, 211, 238, 0.1)", paddingTop: "1rem" }}>
+                  <p className="text-xs uppercase tracking-widest mb-2" style={{ color: "#94A3B8" }}>
+                    API Endpoint
+                  </p>
+                  <p className="font-mono text-xs break-all leading-relaxed" style={{ color: "#E2E8F0" }}>
+                    {apiUrl}
+                  </p>
+                </div>
+
+                <div style={{ borderTop: "1px solid rgba(34, 211, 238, 0.1)", paddingTop: "1rem" }}>
+                  <p className="text-xs uppercase tracking-widest mb-2" style={{ color: "#94A3B8" }}>
+                    Status Message
+                  </p>
+                  <p className="font-mono text-xs" style={{ color: error ? "#EF4444" : "#10B981" }}>
+                    {message}
+                  </p>
+                </div>
+
+                {error && (
+                  <div style={{ borderTop: "1px solid rgba(34, 211, 238, 0.1)", paddingTop: "1rem" }}>
+                    <p className="text-xs leading-relaxed" style={{ color: "rgba(239, 68, 68, 0.8)" }}>
+                      <span className="font-semibold">Error:</span> {error}
+                    </p>
+                  </div>
+                )}
+
+                <div style={{ borderTop: "1px solid rgba(34, 211, 238, 0.1)", paddingTop: "1rem" }}>
+                  <p className="text-xs space-y-1" style={{ color: "#708090" }}>
+                    <div>Frontend: port 3000</div>
+                    <div>Backend: port 8000</div>
+                    <div>CORS: enabled</div>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <footer
+          className="flex-shrink-0 py-4 md:py-6 px-4 md:px-8 lg:px-16 flex flex-col md:flex-row items-center justify-between gap-4 md:gap-0 mt-8"
+          style={{ borderTop: "1px solid rgba(34, 211, 238, 0.1)" }}
+        >
+          <p className="text-xs tracking-wide" style={{ color: "#64748B" }}>
+            © 2025 Metaverse Ventures
+          </p>
+          <div
+            className="text-2xl md:text-3xl font-light tracking-wide"
+            style={{
+              background: "linear-gradient(to right, #22D3EE, #14B8A6)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+            }}
+          >
+            M0
+          </div>
+        </footer>
+      </div>
     </div>
   );
 };
