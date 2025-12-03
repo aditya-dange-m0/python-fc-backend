@@ -253,7 +253,7 @@ class CheckpointerService:
             )
 
             # The checkpointer handles setup automatically.
-            # await self.checkpointer._setup()
+            await self.checkpointer._setup()
             logger.info("✅ AsyncMongoDBSaver created and indexes setup complete")
 
             # Index verification commented out - indexes are handled internally by checkpointer
@@ -463,26 +463,48 @@ class CheckpointerService:
             # Get state history with retry
             async def _get_history():
                 history: List[Dict[str, Any]] = []
-                async for state in self.checkpointer.alist(
-                    config=config,
-                    limit=limit,
-                ):
-                    history.append(
-                        {
-                            "checkpoint_id": state.checkpoint["id"],
-                            "timestamp": state.checkpoint.get("ts"),
-                            "messages": state.values.get("messages", []),
-                            "metadata": state.metadata,
-                        }
-                    )
+                try:
+                    async for checkpoint_tuple in self.checkpointer.alist(
+                        config=config,
+                        limit=limit,
+                    ):
+                        # ✅ CORRECT: Access CheckpointTuple attributes directly
+                        checkpoint = checkpoint_tuple.checkpoint
+                        metadata = checkpoint_tuple.metadata or {}
+                        
+                        # The checkpoint dict structure:
+                        # checkpoint = {
+                        #     'v': 3,
+                        #     'ts': '2025-05-05T16:01:24.680462+00:00',
+                        #     'id': 'checkpoint-id',
+                        #     'channel_values': {'messages': [...]},
+                        #     'channel_versions': {...},
+                        #     'versions_seen': {...}
+                        # }
+                        
+                        # Messages are in checkpoint['channel_values']['messages']
+                        channel_values = checkpoint.get("channel_values", {})
+                        messages = channel_values.get("messages", [])
+                        
+                        history.append(
+                            {
+                                "checkpoint_id": checkpoint.get("id"),
+                                "timestamp": checkpoint.get("ts"),
+                                "messages": messages,
+                                "metadata": metadata,
+                            }
+                        )
+                except StopAsyncIteration:
+                    pass  # Normal end of iteration
+                
                 return history
 
             history = await _retry_mongodb_operation(_get_history)
-            logger.info(f"Retrieved {len(history)} checkpoints for thread {thread_id}")
+            logger.info(f"✓ Retrieved {len(history)} checkpoints for thread {thread_id}")
             return history
 
         except Exception as e:
-            logger.error(f"Failed to get thread history: {e}", exc_info=True)
+            logger.error(f"✗ Failed to get thread history: {e}", exc_info=True)
             return []
 
     async def get_current_state(self, thread_id: str) -> Optional[Dict[str, Any]]:
@@ -495,20 +517,28 @@ class CheckpointerService:
 
             # Get current state with retry
             async def _get_state():
-                state = await self.checkpointer.aget(config)
-                if state:
+                # aget_tuple() returns CheckpointTuple
+                checkpoint_tuple = await self.checkpointer.aget_tuple(config)
+                if checkpoint_tuple:
+                    checkpoint = checkpoint_tuple.checkpoint
+                    metadata = checkpoint_tuple.metadata or {}
+                    
+                    # Messages are in checkpoint['channel_values']['messages']
+                    channel_values = checkpoint.get("channel_values", {})
+                    messages = channel_values.get("messages", [])
+                    
                     return {
-                        "checkpoint_id": state.checkpoint["id"],
-                        "timestamp": state.checkpoint.get("ts"),
-                        "messages": state.values.get("messages", []),
-                        "metadata": state.metadata,
+                        "checkpoint_id": checkpoint.get("id"),
+                        "timestamp": checkpoint.get("ts"),
+                        "messages": messages,
+                        "metadata": metadata,
                     }
                 return None
 
             return await _retry_mongodb_operation(_get_state)
 
         except Exception as e:
-            logger.error(f"Failed to get current state: {e}", exc_info=True)
+            logger.error(f"✗ Failed to get current state: {e}", exc_info=True)
             return None
 
     async def delete_thread_history(self, thread_id: str) -> bool:
