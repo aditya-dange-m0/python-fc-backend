@@ -16,6 +16,7 @@ from checkpoint import get_checkpointer_service
 from tools.memory_tools import MemoryContext
 from .asset_upload_routes import router as asset_router
 from .sandbox_routes import router as sandbox_router
+from .zip_download_api import router as zip_download_router
 
 logger = logging.getLogger("api")
 
@@ -82,6 +83,9 @@ app.include_router(asset_router)
 
 # Include sandbox session management routes
 app.include_router(sandbox_router)
+
+# Include ZIP download routes
+app.include_router(zip_download_router)
 
 
 @app.get("/health")
