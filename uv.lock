@@ -2056,6 +2056,23 @@ wheels = [
 ]
 
 [[package]]
+name = "parallel-web"
+version = "0.3.4"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "anyio" },
+    { name = "distro" },
+    { name = "httpx" },
+    { name = "pydantic" },
+    { name = "sniffio" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/fd/c7/2d784abf966cc87aaa07bff44f109bf659a1ef9998ce4a0ce13b05600594/parallel_web-0.3.4.tar.gz", hash = "sha256:eae6e20b87a43f475bb05df7295e506989c6bd38d322380da204d2ed0bb6e556", size = 131133, upload-time = "2025-11-13T00:29:34.215Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/eb/6e/c21754fe48505d2bc112d322cf8de7bd84f035a6f331d86acb548d0b0387/parallel_web-0.3.4-py3-none-any.whl", hash = "sha256:2804e84ebba789e475901c9aeb88c10045c2d07a2afd9bbc05e317725785c720", size = 137028, upload-time = "2025-11-13T00:29:32.037Z" },
+]
+
+[[package]]
 name = "pillow"
 version = "11.3.0"
 source = { registry = "https://pypi.org/simple" }
@@ -2644,6 +2661,7 @@ dependencies = [
     { name = "langchain-text-splitters" },
     { name = "langgraph-checkpoint-mongodb" },
     { name = "langgraph-store-mongodb" },
+    { name = "parallel-web" },
     { name = "pydantic-settings" },
     { name = "python-dotenv" },
     { name = "redis" },
@@ -2665,6 +2683,7 @@ requires-dist = [
     { name = "langchain-text-splitters", specifier = ">=1.0.0" },
     { name = "langgraph-checkpoint-mongodb", specifier = "==0.2.2" },
     { name = "langgraph-store-mongodb", specifier = ">=0.1.1" },
+    { name = "parallel-web", specifier = ">=0.3.4" },
     { name = "pydantic-settings", specifier = ">=2.12.0" },
     { name = "python-dotenv", specifier = ">=1.2.1" },
     { name = "redis", specifier = ">=7.1.0" },

@@ -15,6 +15,7 @@ from agent.singleton_agent import get_agent
 from checkpoint import get_checkpointer_service
 from tools.memory_tools import MemoryContext
 from .asset_upload_routes import router as asset_router
+from .sandbox_routes import router as sandbox_router
 
 logger = logging.getLogger("api")
 
@@ -78,6 +79,9 @@ app.add_middleware(
 
 # Include asset upload routes
 app.include_router(asset_router)
+
+# Include sandbox session management routes
+app.include_router(sandbox_router)
 
 
 @app.get("/health")

@@ -28,7 +28,7 @@ from redis_client import get_redis, close_redis
 class SandboxConfig:
     """Configuration for sandbox creation"""
 
-    template: Optional[str] = "next-fast-mongo-pre-v2"
+    template: Optional[str] = "react-fast-mongo-pre-v0"
     timeout: int = 500
     auto_pause: bool = True
     allow_internet_access: bool = True
@@ -492,6 +492,9 @@ class MultiTenantSandboxManager:
                 f"[{user_id}/{project_id}] ✅ Reconnected using public API"
             )
 
+            # Update frontend .env with backend public URL (in case it changed or wasn't set)
+            await self._update_frontend_env(sandbox, user_id, project_id)
+
             return sandbox
 
         except (
@@ -604,6 +607,9 @@ class MultiTenantSandboxManager:
                     ttl=redis_ttl,
                 )
 
+                # Update frontend .env with backend public URL
+                await self._update_frontend_env(sandbox, user_id, project_id)
+
                 self.logger.info("=" * 80)
                 self.logger.info(f"[{user_id}/{project_id}] ✅ Sandbox created!")
                 self.logger.info(f"   Sandbox ID: {sandbox.sandbox_id}")
@@ -644,6 +650,90 @@ class MultiTenantSandboxManager:
             raise Exception(f"Health check failed: {e}")
         except Exception as e:
             raise Exception(f"Unexpected health check error: {e}")
+
+    async def _update_frontend_env(
+        self, sandbox: AsyncSandbox, user_id: str, project_id: str
+    ):
+        """
+        Update frontend .env file with backend public URL.
+
+        This ensures the frontend can connect to the backend using the sandbox's
+        public preview URL instead of localhost.
+        """
+        frontend_env_path = "/home/user/code/frontend/.env"
+
+        try:
+            # Get backend public URL (port 8000)
+            backend_port = 8000
+            host = sandbox.get_host(backend_port)
+            if not host:
+                self.logger.warning(
+                    f"[{user_id}/{project_id}] Could not get backend host for port {backend_port}"
+                )
+                return
+
+            # Format the backend URL (E2B preview URLs use https)
+            backend_url = f"https://{host}"
+
+            self.logger.info(
+                f"[{user_id}/{project_id}] Backend URL for frontend: {backend_url}"
+            )
+
+            # Default .env content
+            default_env_content = """REACT_APP_BACKEND_URL=http://localhost:8000
+DISABLE_HOT_RELOAD=false
+REACT_APP_ENABLE_VISUAL_EDITS=false
+ENABLE_HEALTH_CHECK=false"""
+
+            # Try to read existing .env file
+            env_content = default_env_content
+            try:
+                existing_content = await sandbox.files.read(
+                    frontend_env_path, format="text"
+                )
+                if existing_content:
+                    env_content = existing_content
+                    self.logger.debug(
+                        f"[{user_id}/{project_id}] Read existing .env file"
+                    )
+            except Exception as e:
+                self.logger.debug(
+                    f"[{user_id}/{project_id}] .env file not found, using default content: {e}"
+                )
+
+            # Replace REACT_APP_BACKEND_URL with the new backend URL
+            lines = env_content.split("\n")
+            updated_lines = []
+            backend_url_updated = False
+
+            for line in lines:
+                if line.strip().startswith("REACT_APP_BACKEND_URL="):
+                    updated_lines.append(f"REACT_APP_BACKEND_URL={backend_url}")
+                    backend_url_updated = True
+                else:
+                    updated_lines.append(line)
+
+            # If REACT_APP_BACKEND_URL wasn't found, add it
+            if not backend_url_updated:
+                # Add it at the beginning
+                updated_lines.insert(0, f"REACT_APP_BACKEND_URL={backend_url}")
+
+            # Join lines back
+            updated_env_content = "\n".join(updated_lines)
+
+            # Write the updated content to the file
+            await sandbox.files.write(path=frontend_env_path, data=updated_env_content)
+
+            self.logger.info(
+                f"[{user_id}/{project_id}] ✅ Updated frontend .env with backend URL: {backend_url}"
+            )
+
+        except Exception as e:
+            # Log error but don't fail sandbox creation
+            self.logger.warning(
+                f"[{user_id}/{project_id}] Failed to update frontend .env file: {e}. "
+                f"Sandbox creation will continue."
+            )
 
     async def close_sandbox(self, user_id: str, project_id: str):
         """Close sandbox and remove from Redis"""
