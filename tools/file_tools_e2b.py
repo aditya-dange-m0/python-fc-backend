@@ -23,7 +23,6 @@ from enum import Enum
 
 from langchain.tools import ToolRuntime, tool
 from context.runtime_context import RuntimeContext
-from context.runtime_context import RuntimeContext
 from agent_state import FullStackAgentState
 
 
@@ -504,14 +503,10 @@ async def list_directory(
     Returns:
         Formatted string with directory contents
     """
-    user_id = runtime.context.user_id
-    project_id = runtime.context.project_id
-    if not user_id or project_id:
-        user_id = runtime.state["user_id"]
-        project_id = runtime.state["project_id"]
+    user_id, project_id = _resolve_ids_from_runtime(runtime)
 
     # Final safety check
-    if not user_id or not project_id:
+    if not user_id or not project_id or user_id == "unknown_user" or project_id == "unknown_project":
         return f"ERROR: Missing user_id or project_id in runtime context and state. Cannot access sandbox."
 
     try:

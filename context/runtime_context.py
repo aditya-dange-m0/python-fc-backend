@@ -34,6 +34,11 @@ class RuntimeContext:
         """LangChain thread_id (same as project_id)"""
         return self.project_id
 
+    @property
+    def session_id(self) -> str:
+        """Session ID for memory operations (same as project_id)"""
+        return self.project_id
+
     sandbox_id: Optional[str] = None
 
     sandbox_state: str = "NONE"  # ✅ Values: 'RUNNING' | 'PAUSED' | 'KILLED' | 'NONE' (UPPERCASE to match Prisma)

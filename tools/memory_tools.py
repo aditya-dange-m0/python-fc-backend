@@ -20,13 +20,12 @@ logger = logging.getLogger(__name__)
 
 
 # ==================== AGENT STATE SCHEMA ====================
-
-
-class MemoryAgentState(AgentState):
-    """Agent state schema including memory keys for quick retrieval."""
-
-    messages: list
-    memory_keys: list[str]
+# DEPRECATED: Now using FullStackAgentState from agent_state/state.py
+# class MemoryAgentState(AgentState):
+#     """Agent state schema including memory keys for quick retrieval."""
+#
+#     messages: list
+#     memory_keys: list[str]
 
 
 # ==================== MEMORY STORE SETUP ====================
@@ -52,22 +51,24 @@ class MemoryAgentState(AgentState):
 #
 # logger.info("✅ Memory store initialized with semantic search")
 
-logger.info("✅ Memory tools ready (store provided by CheckpointerService)")
+logger.info("Memory tools ready (store provided by CheckpointerService)")
 
 # ==================== CONTEXT SCHEMA ====================
+# DEPRECATED: Now using RuntimeContext from context/runtime_context.py
+# @dataclass
+# class MemoryContext:
+#     """Runtime context passed to memory tools."""
+#
+#     user_id: str
+#     session_id: str
 
-
-@dataclass
-class MemoryContext:
-    """Runtime context passed to memory tools."""
-
-    user_id: str
-    session_id: str
+from context.runtime_context import RuntimeContext
+from agent_state import FullStackAgentState
 
 
 @tool
 def save_to_memory(
-    key: str, content: str, runtime: ToolRuntime[MemoryContext, MemoryAgentState]
+    key: str, content: str, runtime: ToolRuntime[RuntimeContext, FullStackAgentState]
 ) -> str:
     """
     Save information to long-term memory store for future retrieval.
@@ -122,7 +123,7 @@ def retrieve_memory(
     query: str = "",
     retrieval_method: Literal["semantic", "direct"] = "semantic",
     limit: int = 5,
-    runtime: ToolRuntime[MemoryContext, MemoryAgentState] = None,
+    runtime: ToolRuntime[RuntimeContext, FullStackAgentState] = None,
 ) -> str:
     """
     Retrieve information from long-term memory store.

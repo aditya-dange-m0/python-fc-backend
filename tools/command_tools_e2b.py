@@ -699,7 +699,7 @@ async def list_processes(
     """
     user_id = runtime.context.user_id
     project_id = runtime.context.project_id
-    if not user_id or project_id:
+    if not user_id or not project_id:
         user_id = runtime.state["user_id"]
         project_id = runtime.state["project_id"]
 

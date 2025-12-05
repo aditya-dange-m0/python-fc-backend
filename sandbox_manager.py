@@ -29,7 +29,7 @@ class SandboxConfig:
     """Configuration for sandbox creation"""
 
     template: Optional[str] = "react-fast-mongo-pre-v0"
-    timeout: int = 500
+    timeout: int = 1800
     auto_pause: bool = True
     allow_internet_access: bool = True
     secure: bool = True

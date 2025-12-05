@@ -13,7 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from langchain_core.messages import HumanMessage, AIMessage, ToolMessage
 from agent.singleton_agent import get_agent
 from checkpoint import get_checkpointer_service
-from tools.memory_tools import MemoryContext
+from context.runtime_context import RuntimeContext
 from .asset_upload_routes import router as asset_router
 from .sandbox_routes import router as sandbox_router
 from .zip_download_api import router as zip_download_router
@@ -129,7 +129,7 @@ class MessageRequest(BaseModel):
     model_provider: ModelProvider = ModelProvider.OPENROUTER
     streaming: bool = True
     temperature: float = 0.5
-    timeout: int = 10
+    timeout: int = 300  # 5 minutes timeout for long-running agent operations
     max_tokens: int = 1000
     # Asset context (provided by NestJS from Project.metadata)
     image_urls: Optional[List[str]] = None  # Image URLs for vision model input
@@ -196,9 +196,10 @@ async def chat(request: MessageRequest):
                 # Get singleton agent
                 agent = await get_agent()
 
-                # Create memory context
-                memory_context = MemoryContext(
-                    user_id=request.user_id, session_id=request.session_id
+                # Create runtime context (includes memory session_id)
+                runtime_context = RuntimeContext(
+                    user_id=request.user_id,
+                    project_id=request.session_id,  # project_id = session_id for memory
                 )
 
                 # Build message content with asset context
@@ -231,11 +232,13 @@ async def chat(request: MessageRequest):
                     {
                         "messages": [human_message],
                         "memory_keys": [],  # Initialize memory_keys in state
+                        "user_id": request.user_id,  # Pass user_id to state
+                        "project_id": request.session_id,  # Pass project_id to state (session_id = project_id)
                     },
                     config=config,
                     stream_mode=["updates", "messages"],
-                    context=memory_context,  # Pass memory context to tools
-                    durability="exit",
+                    context=runtime_context,  # Pass runtime context to tools
+                    durability="async",
                 ):
                     # Track first response time
                     if first_response_time is None:
@@ -396,6 +399,22 @@ async def chat(request: MessageRequest):
 
                 completed_successfully = True
 
+            except UnboundLocalError as e:
+                # Handle LangChain internal UnboundLocalError (known edge case bug)
+                had_error = True
+                error_msg = "An internal error occurred while processing tool responses. This may be due to an unexpected message structure. Please try again."
+                logger.error(f"LangChain internal error (UnboundLocalError): {e}", exc_info=True)
+                logger.warning("This is a known LangChain edge case bug. Consider retrying the request.")
+                yield format_sse_event(
+                    "error",
+                    {
+                        "message": error_msg,
+                        "type": "LangChainInternalError",
+                        "internal_error": str(e),
+                        "timestamp": datetime.utcnow().isoformat(),
+                        "suggestion": "Please try your request again. If the issue persists, try rephrasing your request.",
+                    },
+                )
             except Exception as e:
                 had_error = True
                 logger.error(f"Agent execution error: {e}", exc_info=True)

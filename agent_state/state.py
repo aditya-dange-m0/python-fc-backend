@@ -23,6 +23,9 @@ class FullStackAgentState(AgentState):
     active_files: NotRequired[list[str]]
     service_pids: NotRequired[dict[str, int]]
     tokens_used: NotRequired[dict]
+    # Memory fields
+    # messages: NotRequired[list] - This Was Causing UnboundLocalError
+    memory_keys: NotRequired[list[str]]
 
 
 def get_state_summary(state: FullStackAgentState) -> dict:
